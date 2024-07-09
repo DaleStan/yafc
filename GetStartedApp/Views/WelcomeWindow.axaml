@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:GetStartedApp.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
+        x:Class="GetStartedApp.Views.WelcomeWindow"
+        x:DataType="vm:WelcomeWindow"
+        Icon="/image.ico"
+        Title="GetStartedApp"
+        CanResize="False"
+        Width="700"
+        >
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:WelcomeWindow/>
+    </Design.DataContext>
+
+    <Grid VerticalAlignment="Top" Margin="75,10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Yet Another Factorio Calculator" HorizontalAlignment="Center" Margin="10" FontSize="25" Grid.ColumnSpan="2"/>
+        <TextBlock Text="Project file location" Grid.Row="1"/>
+        <TextBox Text="{Binding ProjectFileLocation}" Grid.Row="2" Watermark="You can leave this empty for a new project" Background="#e8e8e8" Margin="5"/>
+        <Button Content="..." Grid.Row="2" Grid.Column="2" Command="{Binding BrowseCommand}" CommandParameter="ProjectFileLocation" Margin="5"/>
+        <TextBlock Text="Factorio data location*&#13;It should contain the folders 'base' and 'core'.&#13;" Grid.Row="4"/>
+        <TextBox Text="{Binding FactorioDataLocation}" Watermark="e.g. C:/Games/Steam/SteamApps/common/Factorio/data" Grid.Row="5" Background="#e8e8e8" Margin="5"/>
+        <Button Content="..." Grid.Row="5" Grid.Column="2" Command="{Binding BrowseCommand}" CommandParameter="FactorioDataLocation" Margin="5"/>
+        <TextBlock Text="Factorio Mods location (optional)&#13;It should contain the file 'mod-list.json'." Grid.Row="7"/>
+        <TextBox Text="{Binding ModFolderLocation}" Watermark="If you don't use separate mod folder, leave it empty"  Grid.Row="8" Background="#e8e8e8" Margin="5"/>
+        <Button Content="..." Grid.Row="8" Grid.Column="2" Command="{Binding BrowseCommand}" CommandParameter="ModFolderLocation" Margin="5"/>
+        <CheckBox Content="Expensive Recipes" IsChecked="{Binding ExpensiveRecipes}" Grid.Row="10"/>
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2" Grid.Row="10" HorizontalAlignment="Right">
+            <TextBlock Text="In-game objects language:" VerticalAlignment="Center" Margin="5"/>
+            <ComboBox ItemsSource="{Binding SupportedLanguages, Mode=OneTime}" VerticalAlignment="Center" SelectedItem="{Binding Language}" Width="150" />
+        </StackPanel>
+        <CheckBox Content="Use net production/consumption when analyzing recipes" IsChecked="{Binding ExpensiveRecipes}" Grid.Row="11"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.ColumnSpan="2">
+            <ComboBox ItemsSource="{Binding SupportedLanguages, Mode=OneTime}" VerticalAlignment="Center" SelectedItem="{Binding Language}" Width="150" />
+            <Button Margin="5,2" VerticalAlignment="Stretch" ToolTip.Tip="About YAFC-CE">
+                <Button.Content>
+                    <Image Source="/Data/Icons/Help.png" />
+                </Button.Content>
+            </Button>
+            <Button Margin="5,2" VerticalAlignment="Stretch">
+                <Button.Content>
+                    <Image Source="/Data/Icons/DarkMode.png"/>
+                </Button.Content>
+            </Button>
+            <Button Content="{Binding OpenCaption}" Command="{Binding OpenCommand}" HorizontalAlignment="Stretch"/>
+        </StackPanel>
+    </Grid>
+</Window>
