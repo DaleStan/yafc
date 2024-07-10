@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using Avalonia;
+using Avalonia.ReactiveUI;
 using Yafc.Model;
 using Yafc.UI;
 
@@ -8,6 +10,8 @@ namespace Yafc {
         public static bool hasOverriddenFont;
 
         private static void Main(string[] args) {
+            _ = BuildAvaloniaApp().SetupWithClassicDesktopLifetime(args);
+
             YafcLib.RegisterDefaultAnalysis();
             Ui.Start();
             string? overrideFont = Preferences.Instance.overrideFont;
@@ -46,5 +50,12 @@ namespace Yafc {
                 Ui.MainLoop();
             }
         }
+
+        public static AppBuilder BuildAvaloniaApp()
+            => AppBuilder.Configure<App>()
+                .UsePlatformDetect()
+                .WithInterFont()
+                .LogToTrace()
+                .UseReactiveUI();
     }
 }
