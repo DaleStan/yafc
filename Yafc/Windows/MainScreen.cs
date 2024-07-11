@@ -12,6 +12,7 @@ using SDL2;
 using Serilog;
 using Yafc.Model;
 using Yafc.UI;
+using Yafc.Windows;
 
 namespace Yafc {
     public partial class MainScreen : WindowMain, IKeyboardFocus, IProgress<(string, string)> {
@@ -396,7 +397,7 @@ namespace Yafc {
             }
 
             if (gui.BuildContextMenuButton("Preferences") && gui.CloseDropdown()) {
-                PreferencesScreen.Show();
+                new PreferencesWindow { DataContext = new ViewModels.PreferencesViewModel(project.preferences, project.settings) }.Show();
             }
 
             if (gui.BuildContextMenuButton("Summary") && gui.CloseDropdown()) {

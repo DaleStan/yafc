@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Yafc.ViewModels"
+        xmlns:m="using:Yafc.Model"
+        xmlns:ui="using:Yafc.Model"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Width="550" CanResize="False"
+        x:Class="Yafc.Windows.PreferencesWindow"
+        x:DataType="vm:PreferencesViewModel"
+        Title="Preferences">
+    <Window.Resources>
+        <vm:SdlToAvaloniaIconConverter x:Key="SdlToAvaloniaIconConverter"/>
+    </Window.Resources>
+    <StackPanel Margin="25,20">
+        <TextBlock FontSize="28" HorizontalAlignment="Center">Preferences</TextBlock>
+        <TextBlock FontSize="21">Unit of time:</TextBlock>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <RadioButton Margin="5" Grid.Column="0" IsChecked="{Binding IsSeconds}">Second</RadioButton>
+            <RadioButton Margin="5" Grid.Column="1" IsChecked="{Binding IsMinutes}">Minute</RadioButton>
+            <RadioButton Margin="5" Grid.Column="2" IsChecked="{Binding IsHours}">Hour</RadioButton>
+            <RadioButton Margin="5" Grid.Column="3" IsChecked="{Binding IsCustom}">Custom:</RadioButton>
+            <TextBox Grid.Column="4" Text="{Binding TimeAmount}"/>
+        </Grid>
+        <TextBlock FontSize="21" Margin="0,10,0,0">Item production/consumption:</TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <RadioButton Margin="5,0" IsChecked="{Binding SimpleItem}" Content="{Binding SimpleItemText}" Grid.ColumnSpan="5"/>
+            <RadioButton Margin="5,0" IsChecked="{Binding !SimpleItem}" Grid.Row="1" Content="Custom: 1 unit equals"/>
+            <TextBox Margin="5" Text="{Binding ItemUnit}" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="2">per second</TextBlock>
+            <ComboBox Margin="5" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Belts}" SelectedItem="{Binding SetProductionFromBelt}" PlaceholderText="Set from belt">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="m:EntityBelt">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding icon, Converter={StaticResource ResourceKey=SdlToAvaloniaIconConverter}}"/>
+                            <TextBlock Text="{Binding locName}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+
+        <TextBlock FontSize="21" Margin="0,10,0,0">Fluid production/consumption:</TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton Margin="5,0" IsChecked="{Binding SimpleFluid}" Content="{Binding SimpleFluidText}" Grid.ColumnSpan="5"/>
+            <RadioButton Margin="5,0" IsChecked="{Binding !SimpleFluid}" Grid.Row="1" Content="Custom: 1 unit equals"/>
+            <TextBox Margin="5" Text="{Binding FluidUnit}" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="2">per second</TextBlock>
+        </Grid>
+
+        <Grid Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Grid.Column="0">Pollution cost modifier:</TextBlock>
+            <TextBox Margin="5" Text="{Binding PollutionCostModifier, UpdateSourceTrigger=LostFocus}" Grid.Column="1"/>
+            <Image Source="/Data/Icons/Help.png" ToolTip.Tip="0 for off, 100% for old default" Grid.Column="2" VerticalAlignment="Stretch"/>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Grid.Column="0">Display scale for linkable icons:</TextBlock>
+            <TextBox Margin="5" Text="{Binding IconScale, UpdateSourceTrigger=LostFocus}" Grid.Column="1"/>
+            <Image Source="/Data/Icons/Help.png" ToolTip.Tip="0 for off, 100% for old default" Grid.Column="2"/>
+        </Grid>
+
+    </StackPanel>
+</Window>
