@@ -69,6 +69,7 @@ namespace Yafc {
             tips = File.ReadAllLines("Data/Tips.txt");
 
             IconCollection.ClearCustomIcons();
+            SdlToAvaloniaIconConverter.ClearConversions();
             RenderingUtils.SetColorScheme(Preferences.Instance.darkMode);
 
             recentProjectScroll = new ScrollArea(20f, BuildRecentProjectList, collapsible: true);

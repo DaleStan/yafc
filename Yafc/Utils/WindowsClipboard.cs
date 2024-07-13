@@ -10,7 +10,7 @@ namespace Yafc {
         [DllImport("user32.dll")] private static extern IntPtr SetClipboardData(uint format, IntPtr data);
         [DllImport("user32.dll")] private static extern bool CloseClipboard();
 
-        private static unsafe void CopyToClipboard<T>(uint format, in T header, Span<byte> data) where T : unmanaged {
+        public static unsafe void CopyToClipboard<T>(uint format, in T header, Span<byte> data) where T : unmanaged {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                 return;
             }
@@ -32,46 +32,9 @@ namespace Yafc {
             }
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct BitmapInfoHeader {
-            public uint biSize;
-            public int biWidth;
-            public int biHeight;
-            public short biPlanes;
-            public short biBitCount;
-            public uint biCompression;
-            public uint biSizeImage;
-            public int biXPixelPerMeter;
-            public int biYPixelPerMeter;
-            public uint biClrUsed;
-            public uint biClrImportant;
+        public static void CopySurfaceToClipboard(MemoryDrawingSurface surface) {
+            (BitmapInfoHeader header, byte[] bytes) = RenderingUtils.GetBitmapInfoForClipboard(surface.surface);
+            CopyToClipboard(8, header, bytes);
         }
-
-        public static unsafe void CopySurfaceToClipboard(MemoryDrawingSurface surface) {
-            ref var surfaceInfo = ref RenderingUtils.AsSdlSurface(surface.surface);
-            int width = surfaceInfo.w;
-            int height = surfaceInfo.h;
-            int pitch = surfaceInfo.pitch;
-            int size = pitch * surfaceInfo.h;
-
-            // Windows expect images starting at bottom
-            Span<byte> flippedPixels = new Span<byte>(new byte[size]);
-            Span<byte> originalPixels = new Span<byte>((void*)surfaceInfo.pixels, size);
-            for (int i = 0; i < surfaceInfo.h; i++) {
-                originalPixels.Slice(i * pitch, pitch).CopyTo(flippedPixels.Slice((height - i - 1) * pitch, pitch));
-            }
-
-            BitmapInfoHeader header = new BitmapInfoHeader {
-                biSize = (uint)Unsafe.SizeOf<BitmapInfoHeader>(),
-                biWidth = width,
-                biHeight = height,
-                biPlanes = 1,
-                biBitCount = 32,
-                biCompression = 0,
-                biSizeImage = (uint)size,
-            };
-            CopyToClipboard(8, header, flippedPixels);
-        }
-
     }
 }

@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Yafc.ViewModels"
+        xmlns:m="using:Yafc.Model"
+        xmlns:w="using:Yafc.Widgets"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Width="550" CanResize="False"
+        x:DataType="vm:SelectSingleObjectViewModel"
+        x:Class="Yafc.Windows.SelectSingleObjectWindow"
+        Title="SelectSingleObjectWindow">
+    <StackPanel Margin="25,20">
+        <TextBlock FontSize="28" HorizontalAlignment="Center">Preferences</TextBlock>
+    </StackPanel>
+</Window>

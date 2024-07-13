@@ -2,7 +2,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Yafc.ViewModels"
         xmlns:m="using:Yafc.Model"
-        xmlns:ui="using:Yafc.Model"
+        xmlns:p="using:Yafc.Parser"
+        xmlns:ui="using:Yafc.UI"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" Width="550" CanResize="False"
@@ -10,7 +11,7 @@
         x:DataType="vm:PreferencesViewModel"
         Title="Preferences">
     <Window.Resources>
-        <vm:SdlToAvaloniaIconConverter x:Key="SdlToAvaloniaIconConverter"/>
+        <p:SdlToAvaloniaIconConverter x:Key="SdlToAvaloniaIconConverter"/>
     </Window.Resources>
     <StackPanel Margin="25,20">
         <TextBlock FontSize="28" HorizontalAlignment="Center">Preferences</TextBlock>
@@ -49,8 +50,8 @@
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="m:EntityBelt">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="{Binding icon, Converter={StaticResource ResourceKey=SdlToAvaloniaIconConverter}}"/>
-                            <TextBlock Text="{Binding locName}"/>
+                            <Image Source="{Binding icon, Converter={StaticResource ResourceKey=SdlToAvaloniaIconConverter}}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding locName}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>

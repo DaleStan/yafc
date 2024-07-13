@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reactive;
 using ReactiveUI;
 using Yafc.Model;
 
 namespace Yafc.ViewModels;
 
-internal class PreferencesViewModel(ProjectPreferences preferences, ProjectSettings settings) : ViewModelBase {
+internal class PreferencesViewModel : ViewModelBase {
+    private readonly ProjectPreferences preferences;
+    private readonly ProjectSettings settings;
+
+    public PreferencesViewModel(ProjectPreferences preferences, ProjectSettings settings)
+    {
+        this.preferences = preferences;
+        this.settings = settings;
+        OkCommand = ReactiveCommand.Create(Ok);
+        CancelCommand=ReactiveCommand.Create(Cancel);
+    }
+
     public bool IsSeconds {
         get => preferences.time == 1;
         set {
@@ -65,29 +72,35 @@ internal class PreferencesViewModel(ProjectPreferences preferences, ProjectSetti
         get => preferences.itemUnit == 0;
         set {
             if (value) {
-                ItemUnit = 0;
+                ItemUnit = "0";
             }
         }
     }
-    public float ItemUnit {
-        get => preferences.itemUnit;
+    public string ItemUnit {
+        get => preferences.itemUnit.ToString();
         set {
-            if (value != preferences.itemUnit) {
+            if (DataUtils.TryParseAmount(value, out float amount, UnitOfMeasure.None) && amount != preferences.itemUnit) {
                 this.RaisePropertyChanging();
                 this.RaisePropertyChanging(nameof(SimpleItem));
                 this.RaisePropertyChanging(nameof(SetProductionFromBelt));
-                preferences.RecordUndo(true).itemUnit = value;
+                preferences.RecordUndo(true).itemUnit = amount;
                 this.RaisePropertyChanged();
+                this.RaisePropertyChanged(nameof(SimpleItem));
+                this.RaisePropertyChanged(nameof(SetProductionFromBelt));
+            }
+            else {
+                this.RaisePropertyChanging(nameof(SimpleItem));
+                this.RaisePropertyChanging(nameof(SetProductionFromBelt));
                 this.RaisePropertyChanged(nameof(SimpleItem));
                 this.RaisePropertyChanged(nameof(SetProductionFromBelt));
             }
         }
     }
     public EntityBelt? SetProductionFromBelt {
-        get => null;
+        get => new();
         set {
             if (value != null) {
-                preferences.RecordUndo(true).itemUnit = value.beltItemsPerSecond;
+                ItemUnit = value.beltItemsPerSecond.ToString();
             }
         }
     }
@@ -195,6 +208,12 @@ internal class PreferencesViewModel(ProjectPreferences preferences, ProjectSetti
             }
         }
     }
+
+    public ReactiveCommand<Unit, Unit> OkCommand { get; }
+    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
+
+    private void Ok() { }
+    private void Cancel() { }
 
 #pragma warning disable CA1822 // Mark members as static
     public EntityBelt[] Belts => Database.allBelts;

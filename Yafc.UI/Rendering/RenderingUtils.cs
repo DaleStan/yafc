@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using SDL2;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Yafc.UI {
     public static class RenderingUtils {
@@ -159,5 +162,59 @@ namespace Yafc.UI {
             rect.h = position.h;
             result[7] = new BlitMapping(CircleLeft, rect);
         }
+
+        public static (BitmapInfoHeader, byte[]) GetBitmapInfoForAvalonia(nint surface) => GetBitmapInfo(surface, false);
+        public static (BitmapInfoHeader, byte[]) GetBitmapInfoForClipboard(nint surface) => GetBitmapInfo(surface, true);
+
+        private static unsafe (BitmapInfoHeader, byte[]) GetBitmapInfo(nint surface, bool forClipboard) {
+            ref SDL.SDL_Surface surfaceInfo = ref AsSdlSurface(surface);
+            int width = surfaceInfo.w;
+            int height = surfaceInfo.h;
+            int pitch = surfaceInfo.pitch;
+            int size = pitch * surfaceInfo.h;
+
+            byte[] bytes = new byte[size];
+            if (forClipboard) {
+                // Windows expect images starting at bottom
+                Span<byte> flippedPixels = new Span<byte>(bytes);
+                Span<byte> originalPixels = new Span<byte>((void*)surfaceInfo.pixels, size);
+                for (int i = 0; i < surfaceInfo.h; i++) {
+                    originalPixels.Slice(i * pitch, pitch).CopyTo(flippedPixels.Slice((height - i - 1) * pitch, pitch));
+                }
+            }
+            else { // For Avalonia: pixels top to bottom, but change the ABGR format with RBGA
+                fixed (byte* ptr = bytes) {
+                    for (int i = 0; i < bytes.Length / 4; i++) {
+                        ((int*)ptr)[i] = IPAddress.HostToNetworkOrder(((int*)surfaceInfo.pixels)[i]);
+                    }
+                }
+            }
+
+            BitmapInfoHeader header = new BitmapInfoHeader {
+                biSize = (uint)Unsafe.SizeOf<BitmapInfoHeader>(),
+                biWidth = width,
+                biHeight = height,
+                biPlanes = 1,
+                biBitCount = 32,
+                biCompression = 0,
+                biSizeImage = (uint)size,
+            };
+            return (header, bytes);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BitmapInfoHeader {
+        public uint biSize;
+        public int biWidth;
+        public int biHeight;
+        public short biPlanes;
+        public short biBitCount;
+        public uint biCompression;
+        public uint biSizeImage;
+        public int biXPixelPerMeter;
+        public int biYPixelPerMeter;
+        public uint biClrUsed;
+        public uint biClrImportant;
     }
 }

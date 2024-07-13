@@ -278,7 +278,10 @@ namespace Yafc.Parser {
                 };
                 _ = SDL.SDL_BlitScaled(image, ref srcRect, targetSurface, ref targetRect);
             }
-            return IconCollection.AddIcon(targetSurface);
+
+            Icon iconId = IconCollection.AddIcon(targetSurface);
+            SdlToAvaloniaIconConverter.AddConversion(iconId, IconCollection.GetIconSurface(iconId));
+            return iconId;
         }
 
         private static void DeserializePrototypes(LuaTable data, string type, Action<LuaTable, ErrorCollector> deserializer, IProgress<(string, string)> progress, ErrorCollector errorCollector) {
