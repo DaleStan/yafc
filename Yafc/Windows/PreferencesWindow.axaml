@@ -46,7 +46,7 @@
             <RadioButton Margin="5,0" IsChecked="{Binding !SimpleItem}" Grid.Row="1" Content="Custom: 1 unit equals"/>
             <TextBox Margin="5" Text="{Binding ItemUnit}" Grid.Row="1" Grid.Column="1"/>
             <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="2">per second</TextBlock>
-            <ComboBox Margin="5" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Belts}" SelectedItem="{Binding SetProductionFromBelt}" PlaceholderText="Set from belt">
+            <ComboBox Margin="5" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Belts}" PlaceholderText="Set from belt" SelectionChanged="ComboBox_SelectionChanged">
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="m:EntityBelt">
                         <StackPanel Orientation="Horizontal">

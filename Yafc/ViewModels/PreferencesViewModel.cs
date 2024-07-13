@@ -8,12 +8,11 @@ internal class PreferencesViewModel : ViewModelBase {
     private readonly ProjectPreferences preferences;
     private readonly ProjectSettings settings;
 
-    public PreferencesViewModel(ProjectPreferences preferences, ProjectSettings settings)
-    {
+    public PreferencesViewModel(ProjectPreferences preferences, ProjectSettings settings) {
         this.preferences = preferences;
         this.settings = settings;
         OkCommand = ReactiveCommand.Create(Ok);
-        CancelCommand=ReactiveCommand.Create(Cancel);
+        CancelCommand = ReactiveCommand.Create(Cancel);
     }
 
     public bool IsSeconds {
@@ -96,12 +95,9 @@ internal class PreferencesViewModel : ViewModelBase {
             }
         }
     }
-    public EntityBelt? SetProductionFromBelt {
-        get => new();
-        set {
-            if (value != null) {
-                ItemUnit = value.beltItemsPerSecond.ToString();
-            }
+    public void SetProductionFromBelt(EntityBelt? belt) {
+        if (belt != null) {
+            ItemUnit = belt.beltItemsPerSecond.ToString();
         }
     }
 
