@@ -95,6 +95,11 @@
             <TextBox Margin="5" Text="{Binding IconScale, UpdateSourceTrigger=LostFocus}" Grid.Column="1"/>
             <Image Source="/Data/Icons/Help.png" ToolTip.Tip="0 for off, 100% for old default" Grid.Column="2"/>
         </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="OK" Command="{Binding Ok}"/>
+            <!--No cancel button until we separate the UI state from the underlying project state.-->
+            <!--<Button Content="Cancel" Command="{Binding Cancel}"/>-->
+        </StackPanel>
 
     </StackPanel>
 </Window>

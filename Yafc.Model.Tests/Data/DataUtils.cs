@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Threading;
 using Xunit;
 
+#nullable disable warnings
+
 namespace Yafc.Model.Data.Tests;
 
 public class DataUtilsTests {

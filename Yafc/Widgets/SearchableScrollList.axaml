@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Yafc.ViewModels"
+             xmlns:m="using:Yafc.Model"
+             xmlns:ui="using:Yafc.UI"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:SearchableScrollListViewModel"
+             x:Class="Yafc.Widgets.SearchableScrollList">
+    <StackPanel Background="#ffffff">
+        <TextBox Text="{Binding Query}" Watermark="Start typing to search"/>
+        <ListBox>
+            <ListBox.Items>
+                <Image Source="/Data/Icons/Close.png" Stretch="None"/>
+                <Image Source="/Data/Digits/0.png" Stretch="None"/>
+                <Image Source="/Data/Digits/1.png" Stretch="None"/>
+                <Image Source="/Data/Digits/2.png" Stretch="None"/>
+                <Image Source="/Data/Digits/3.png" Stretch="None"/>
+            </ListBox.Items>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Width="330" Height="{Binding RequiredHeight}"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:SearchableScrollListItem">
+                    <Image Source="{Binding Icon}" Stretch="None" Width="30" Height="30" RenderTransformOrigin=".5,.5"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.Styles>
+                <Style Selector="ContentPresenter"  x:DataType="vm:SearchableScrollListItem">
+                    <Setter Property="Canvas.Left" Value="{Binding TopX}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding TopY}"/>
+                </Style>
+            </ListBox.Styles>
+        </ListBox>
+    </StackPanel>
+</UserControl>

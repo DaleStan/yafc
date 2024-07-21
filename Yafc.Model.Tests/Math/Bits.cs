@@ -1,6 +1,7 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Xunit;
+
+#nullable disable warnings
 
 namespace Yafc.Model.Tests {
     public class BitsTests {

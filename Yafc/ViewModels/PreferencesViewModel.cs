@@ -12,7 +12,6 @@ internal class PreferencesViewModel : ViewModelBase {
         this.preferences = preferences;
         this.settings = settings;
         OkCommand = ReactiveCommand.Create(Ok);
-        CancelCommand = ReactiveCommand.Create(Cancel);
     }
 
     public bool IsSeconds {
@@ -206,12 +205,11 @@ internal class PreferencesViewModel : ViewModelBase {
     }
 
     public ReactiveCommand<Unit, Unit> OkCommand { get; }
-    public ReactiveCommand<Unit, Unit> CancelCommand { get; }
-
-    private void Ok() { }
-    private void Cancel() { }
 
 #pragma warning disable CA1822 // Mark members as static
+    private void Ok() { }
+    public void Cancel() { }
+
     public EntityBelt[] Belts => Database.allBelts;
     public EntityInserter[] Inserters => Database.allInserters;
 #pragma warning restore CA1822 // Mark members as static
