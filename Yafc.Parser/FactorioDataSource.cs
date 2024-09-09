@@ -373,6 +373,11 @@ public static partial class FactorioDataSource {
             CurrentLoadingMod = null;
             _ = dataContext.Exec(postProcess, "*", "post");
 
+            if (!string.IsNullOrEmpty(projectPath)) {
+                PrintTable(dataContext.data, "data", projectPath + ".lua", false);
+                PrintTable((LuaTable)dataContext.defines["prototypes"]!, "defines.prototypes", projectPath + ".lua", true);
+                PrintTable((LuaTable)dataContext.GetGlobal("mods")!, "mods", projectPath + ".lua", true);
+            }
             FactorioDataDeserializer deserializer = new FactorioDataDeserializer(factorioVersion ?? defaultFactorioVersion);
             var project = deserializer.LoadData(projectPath, dataContext.data, (LuaTable)dataContext.defines["prototypes"]!, netProduction, progress, errorCollector, renderIcons, useLatestSave);
             logger.Information("Completed!");
