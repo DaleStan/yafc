@@ -8,7 +8,7 @@ internal partial class SourceGenerator {
     private static void Main() {
         // Find the solution root directory
         string rootDirectory = Environment.CurrentDirectory;
-        while (!Directory.Exists(Path.Combine(rootDirectory, ".git"))) {
+        while (!Directory.Exists(Path.Combine(rootDirectory, "FactorioCalc.sln"))) {
             rootDirectory = Path.GetDirectoryName(rootDirectory)!;
         }
         Environment.CurrentDirectory = rootDirectory;
