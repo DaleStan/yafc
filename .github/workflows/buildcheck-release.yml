@@ -34,6 +34,11 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 
+    # For reasons that are unclear, the build fails if the generated files do not exist at the beginning of the build.
+    # Explicitly build the generator to generate the files, then let the implicit build take care of everything else.
+    - name: Generate source
+      run: dotnet build ./Yafc.I18n.Generator/
+
     # Execute all unit tests in the solution
     - name: Execute unit tests
       run: dotnet test
