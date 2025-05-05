@@ -8,10 +8,12 @@ internal partial class SourceGenerator {
     private static void Main() {
         // Find the solution root directory
         string rootDirectory = Environment.CurrentDirectory;
-        while (!Directory.Exists(Path.Combine(rootDirectory, "FactorioCalc.sln"))) {
+        while (!Directory.Exists(Path.Combine(rootDirectory, ".git"))) {
             rootDirectory = Path.GetDirectoryName(rootDirectory)!;
         }
         Environment.CurrentDirectory = rootDirectory;
+
+        Console.WriteLine("Found root directory: " + rootDirectory);
 
         HashSet<string> keys = [];
         HashSet<string> referencedKeys = [];
@@ -146,6 +148,8 @@ internal partial class SourceGenerator {
             strings.WriteLine("}");
         }
 
+        Console.WriteLine($"Loaded {keys.Count} strings.");
+
         ReplaceIfChanged("Yafc.I18n/LocalizableStringClasses.g.cs", classesMemory);
         ReplaceIfChanged("Yafc.I18n/LocalizableStrings.g.cs", stringsMemory);
     }
@@ -155,6 +159,10 @@ internal partial class SourceGenerator {
         newContent.Position = 0;
         if (!File.Exists(filePath) || File.ReadAllText(filePath) != new StreamReader(newContent, leaveOpen: true).ReadToEnd()) {
             File.WriteAllBytes(filePath, newContent.ToArray());
+            Console.WriteLine($"Updated {Path.GetFullPath(filePath)}.");
+        }
+        else {
+            Console.WriteLine($"{Path.GetFullPath(filePath)} is up-to-date.");
         }
     }
 
