@@ -8,6 +8,9 @@ rm -rf Build
 VERSION=$(grep -oPm1 "(?<=<AssemblyVersion>)[^<]+" Yafc/Yafc.csproj)
 echo "Building YAFC version $VERSION..."
 
+# For reasons that are unclear, the build fails if the generated files do not exist at the beginning of the build.
+# Explicitly build the generator to generate the files, then let the implicit builds take care of everything else.
+dotnet build ./Yafc.I18n.Generator/
 dotnet publish Yafc/Yafc.csproj -r win-x64 -c Release -o Build/Windows
 dotnet publish Yafc/Yafc.csproj -r win-x64 --self-contained -c Release -o Build/Windows-self-contained
 dotnet publish Yafc/Yafc.csproj -r osx-x64 -c Release -o Build/OSX
