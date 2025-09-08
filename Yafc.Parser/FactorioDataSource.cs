@@ -503,6 +503,9 @@ public static partial class FactorioDataSource {
             renderProgress.Destination = progress;
             renderTask?.Wait();
 
+            if (!string.IsNullOrEmpty(projectPath)) {
+                PrintObjects(projectPath + ".cs");
+            }
             logger.Information("Completed!");
             progress.Report((LSs.ProgressCompleted, ""));
 
