@@ -380,6 +380,9 @@ public static partial class FactorioDataSource {
             }
             FactorioDataDeserializer deserializer = new FactorioDataDeserializer(factorioVersion ?? defaultFactorioVersion);
             var project = deserializer.LoadData(projectPath, dataContext.data, (LuaTable)dataContext.defines["prototypes"]!, netProduction, progress, errorCollector, renderIcons, useLatestSave);
+            if (!string.IsNullOrEmpty(projectPath)) {
+                PrintObjects(projectPath + ".cs");
+            }
             logger.Information("Completed!");
             progress.Report((LSs.ProgressCompleted, ""));
 

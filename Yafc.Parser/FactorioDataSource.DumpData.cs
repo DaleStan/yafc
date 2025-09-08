@@ -74,6 +74,126 @@ public static partial class FactorioDataSource {
         }
     }
 
+    private static void PrintObjects(string file) {
+        Project.current = new();
+        using StreamWriter sw = new(file);
+        foreach (FactorioObject obj in Database.objects.all.OrderBy(o => o.typeDotName)) {
+            sw.WriteLine($$"""Database.objectsByTypename["{{obj.typeDotName}}"] = new {{obj.GetType().Name}} {""");
+            writeMembers(sw, obj, 4);
+            sw.WriteLine("};");
+        }
+
+        static void writeMembers(StreamWriter sw, object obj, int indent) {
+            foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).OrderBy(p => p.Name)) {
+                if (property.Name is "id" or "icon" || property.GetMethod is null) {
+                    continue;
+                }
+
+                if (property.SetMethod is not null || (property.PropertyType.IsAssignableTo(typeof(IEnumerable)) && property.PropertyType != typeof(string))) {
+                    writeMember(sw, indent, property, property.GetValue(obj));
+                }
+            }
+
+            foreach (var field in obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance).OrderBy(f => f.Name)) {
+                writeMember(sw, indent, field, field.GetValue(obj));
+            }
+        }
+
+        static void writeMember(StreamWriter sw, int indent, MemberInfo member, object? value) {
+            sw.Write(new string(' ', indent) + $"{member.Name} = ");
+            writeValue(sw, indent, value);
+            sw.WriteLine();
+        }
+
+        static void writeValue(StreamWriter sw, int indent, object? value) {
+            if (value != null && value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(Lazy<>)) {
+                value = value.GetType().GetProperty("Value")!.GetValue(value, null);
+            }
+            switch (value) {
+                case null:
+                    sw.Write($"null,");
+                    break;
+                case FactorioObject obj:
+                    sw.Write($"""Database.objectsByTypename["{obj.typeDotName}"],""");
+                    break;
+                case string str:
+                    if (str.Contains('\n')) {
+                        sw.WriteLine("\"\"\"");
+                        sw.WriteLine(str);
+                        sw.Write("\"\"\",");
+                    }
+                    else {
+                        sw.Write($"\"{str.Replace("\\", @"\\").Replace("\"", @"\""")}\",");
+                    }
+                    break;
+                case IEnumerable enumerable:
+                    writeEnumerable(sw, indent, enumerable.Cast<object>());
+                    break;
+                case Ingredient or Product or EffectReceiver or EntityEnergy or FactorioIconPart or Effect or ModuleSpecification:
+                    sw.WriteLine("new() {");
+                    writeMembers(sw, value, indent + 4);
+                    sw.Write(new string(' ', indent) + "},");
+                    break;
+                case TemperatureRange range:
+                    if (range.min == TemperatureRange.Any.min && range.max == TemperatureRange.Any.max) {
+                        sw.Write($"TemperatureRange.Any,");
+                    }
+                    else if (range.min == range.max) {
+                        sw.Write($"new TemperatureRange({range.min}),");
+                    }
+                    else {
+                        sw.Write($"new TemperatureRange({range.min}, {range.max}),");
+                    }
+                    break;
+                case true:
+                    sw.Write("true,");
+                    break;
+                case false:
+                    sw.Write("false,");
+                    break;
+                case float.PositiveInfinity:
+                    sw.Write("float.PositiveInfinity,");
+                    break;
+                case double.PositiveInfinity:
+                    sw.Write("double.PositiveInfinity,");
+                    break;
+                default:
+                    sw.Write($"{value},");
+                    break;
+            }
+        }
+
+        static void writeEnumerable(StreamWriter sw, int indent, IEnumerable<object> enumerable) {
+            switch (enumerable.Count()) {
+                case 0:
+                    sw.Write("[],");
+                    return;
+                case 1:
+                    sw.Write("[ ");
+                    writeValue(sw, indent, enumerable.First());
+                    sw.Write(" ],");
+                    return;
+            }
+
+            sw.WriteLine('[');
+
+            if (enumerable is IEnumerable<IComparable>) {
+                enumerable = enumerable.Order();
+            }
+            else if (enumerable is IEnumerable<FactorioObject> fobjs) {
+                enumerable = fobjs.OrderBy(o => o.typeDotName);
+            }
+
+            foreach (object item in enumerable) {
+                sw.Write(new string(' ', indent + 4));
+                writeValue(sw, indent + 4, item);
+                sw.WriteLine();
+            }
+
+            sw.Write(new string(' ', indent) + "],");
+        }
+    }
+
     [GeneratedRegex("^[A-Za-z_][A-Za-z0-9_]*$")]
     private static partial Regex IdentifierRegex();
     [GeneratedRegex(@"[\0-\x1F""\\]")]
