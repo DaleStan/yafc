@@ -837,38 +837,6 @@ public static partial class FactorioDataSource {
             }
         }
 
-        protected override unsafe bool Read(Stream stream, IProgress<(string, string)> progress) {
-            using BinaryReader reader = new(stream);
-            foreach (var obj in objects) {
-                int id = reader.Read7BitEncodedInt();
-                if (id > 0) {
-                    obj.iconId = id + (int)Icon.FirstCustom - 1;
-                }
-            }
-
-            int iconCount = reader.Read7BitEncodedInt();
-            IconCollection.ClearCustomIcons();
-
-            for (int i = 0; i < iconCount; i++) {
-                if (i % 1000 == 0) {
-                    progress.Report((LSs.ProgressLoadingCacheIcons, LSs.ProgressRenderingXOfY.L(i, iconCount)));
-                }
-                int width = reader.ReadByte();
-                int height = reader.ReadByte();
-
-                nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 0, SDL.SDL_PIXELFORMAT_RGBA8888);
-                IconCollection.AddIcon(surface);
-
-                ref var sdlSurface = ref RenderingUtils.AsSdlSurface(surface);
-                ref var format = ref Unsafe.AsRef<SDL.SDL_PixelFormat>((void*)sdlSurface.format);
-                int expectedBytes = width * height * format.BytesPerPixel;
-                if (reader.Read(new Span<byte>((void*)sdlSurface.pixels, expectedBytes)) != expectedBytes) {
-                    logger.Information("Unexpected end of data reading icon cache.");
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        protected override bool Read(Stream stream, IProgress<(string, string)> progress) => false;
     }
 }
