@@ -249,6 +249,8 @@ internal partial class FactorioDataDeserializer {
         nint targetSurface = SDL.SDL_CreateRGBSurfaceWithFormat(0, renderSize, renderSize, 0, SDL.SDL_PIXELFORMAT_RGBA8888);
         _ = SDL.SDL_SetSurfaceBlendMode(targetSurface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
 
+        List<(string, SDL.SDL_Rect src, SDL.SDL_Rect target)> rects = [];
+
         foreach (var icon in spec) {
             var modPath = FactorioDataSource.ResolveModPath("", icon.path);
 
@@ -312,12 +314,14 @@ internal partial class FactorioDataDeserializer {
                 h = sdlSurface.h
             };
             _ = SDL.SDL_BlitScaled(image, ref srcRect, targetSurface, ref targetRect);
+
+            rects.Add((modPath.path, srcRect, targetRect));
         }
 
         if (RenderingUtils.AsSdlSurface(targetSurface).h > cachedIconSize * 2) {
             targetSurface = SoftwareScaler.DownscaleIcon(targetSurface, cachedIconSize);
         }
-        return IconCollection.AddIcon(targetSurface);
+        return IconCollection.AddIcon(targetSurface, rects);
     }
 
     private static void DeserializePrototypes(LuaTable data, string type, Action<LuaTable, ErrorCollector> deserializer,

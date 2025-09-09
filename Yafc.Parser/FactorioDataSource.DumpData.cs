@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using SDL2;
 using Yafc.Model;
+using Yafc.UI;
 
 namespace Yafc.Parser;
 
@@ -74,6 +77,9 @@ public static partial class FactorioDataSource {
         }
     }
 
+    static readonly IEnumerable<object> icons = ((List<(IntPtr, List<(string file, SDL.SDL_Rect source, SDL.SDL_Rect dest)>)>)typeof(IconCollection).GetField("icons", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!)
+        .Select(i => i.Item2.Select(i => new { i.file, i.source, i.dest }));
+
     private static void PrintObjects(string file) {
         Project.current = new();
         using StreamWriter sw = new(file);
@@ -83,13 +89,15 @@ public static partial class FactorioDataSource {
             sw.WriteLine("};");
         }
 
-        static void writeMembers(StreamWriter sw, object obj, int indent) {
+        static void writeMembers(StreamWriter sw, object obj, int indent, bool allProperties = false) {
             foreach (var property in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).OrderBy(p => p.Name)) {
-                if (property.Name is "id" or "icon" || property.GetMethod is null) {
+                if (property.Name is "id" || property.GetMethod is null) {
                     continue;
                 }
-
-                if (property.SetMethod is not null || (property.PropertyType.IsAssignableTo(typeof(IEnumerable)) && property.PropertyType != typeof(string))) {
+                else if (property.Name == "icon") {
+                    writeMember(sw, indent, property, icons.Skip((int)property.GetValue(obj)!).First());
+                }
+                else if (allProperties || property.SetMethod is not null || (property.PropertyType.IsAssignableTo(typeof(IEnumerable)) && property.PropertyType != typeof(string))) {
                     writeMember(sw, indent, property, property.GetValue(obj));
                 }
             }
@@ -129,7 +137,7 @@ public static partial class FactorioDataSource {
                 case IEnumerable enumerable:
                     writeEnumerable(sw, indent, enumerable.Cast<object>());
                     break;
-                case Ingredient or Product or EffectReceiver or EntityEnergy or FactorioIconPart or Effect or ModuleSpecification:
+                case Ingredient or Product or EffectReceiver or EntityEnergy or FactorioIconPart or Effect or ModuleSpecification or SDL.SDL_Rect:
                     sw.WriteLine("new() {");
                     writeMembers(sw, value, indent + 4);
                     sw.Write(new string(' ', indent) + "},");
@@ -158,7 +166,15 @@ public static partial class FactorioDataSource {
                     sw.Write("double.PositiveInfinity,");
                     break;
                 default:
-                    sw.Write($"{value},");
+                    var type = value.GetType();
+                    if (type.IsGenericType && type.Name.Contains("AnonymousType") && type.GetCustomAttribute<CompilerGeneratedAttribute>() != null) {
+                        sw.WriteLine("new {");
+                        writeMembers(sw, value, indent + 4, true);
+                        sw.Write(new string(' ', indent) + "},");
+                    }
+                    else {
+                        sw.Write($"{value},");
+                    }
                     break;
             }
         }
