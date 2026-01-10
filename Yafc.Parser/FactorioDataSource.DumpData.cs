@@ -162,6 +162,9 @@ public static partial class FactorioDataSource {
                         sw.Write($"\"{str.Replace("\\", @"\\").Replace("\"", @"\""")}\",");
                     }
                     break;
+                case IDictionary dictionary:
+                    writeDictionary(sw, indent, dictionary);
+                    break;
                 case IEnumerable enumerable:
                     writeEnumerable(sw, indent, enumerable.Cast<object>());
                     break;
@@ -207,6 +210,18 @@ public static partial class FactorioDataSource {
             }
         }
 
+        static IEnumerable orderEnumerable(IEnumerable enumerable) {
+            if (enumerable is IEnumerable<IComparable> comparable) {
+                return comparable.Order();
+            }
+
+            if (enumerable is IEnumerable<IFactorioObjectWrapper> fobjs) {
+                return fobjs.OrderBy(o => o.target.typeDotName);
+            }
+
+            return enumerable;
+        }
+
         static void writeEnumerable(StreamWriter sw, int indent, IEnumerable<object> enumerable) {
             switch (enumerable.Count()) {
                 case 0:
@@ -221,20 +236,35 @@ public static partial class FactorioDataSource {
 
             sw.WriteLine('[');
 
-            if (enumerable is IEnumerable<IComparable>) {
-                enumerable = enumerable.Order();
-            }
-            else if (enumerable is IEnumerable<FactorioObject> fobjs) {
-                enumerable = fobjs.OrderBy(o => o.typeDotName);
-            }
-
-            foreach (object item in enumerable) {
+            foreach (object item in orderEnumerable(enumerable)) {
                 sw.Write(new string(' ', indent + 4));
                 writeValue(sw, indent + 4, item);
                 sw.WriteLine();
             }
 
             sw.Write(new string(' ', indent) + "],");
+        }
+
+        static void writeDictionary(StreamWriter sw, int indent, IDictionary dictionary) {
+            if (dictionary.Count == 0) {
+                sw.Write("[],");
+                return;
+            }
+
+            sw.WriteLine("new() {");
+
+            foreach (object key in orderEnumerable(dictionary.Keys)) {
+                sw.Write(new string(' ', indent + 4));
+                sw.Write('[');
+                writeValue(sw, indent + 8, key);
+                sw.Flush();
+                sw.BaseStream.Position--; // overwrite the unwanted trailing comma
+                sw.Write("] = ");
+                writeValue(sw, indent + 8, dictionary[key]);
+                sw.WriteLine();
+            }
+
+            sw.Write(new string(' ', indent) + "},");
         }
     }
 
